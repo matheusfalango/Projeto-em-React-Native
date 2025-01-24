@@ -25,7 +25,7 @@ function ToDoListScreen() {
       <Text style={styles.title}>To-Do List</Text>
       <View style={styles.inputContainer}>
         <TextInput
-          style={styles.input}
+          style={styles.inputList}
           placeholder="Digite uma tarefa..."
           value={task}
           onChangeText={setTask}
@@ -66,17 +66,93 @@ function InstructionsScreen() {
   );
 }
 
+// Tela de Perfil
+function ProfileScreen({ onLogout, user }) {
+  return (
+    <View style={styles.container}>
+      <Text style={styles.title}>Perfil</Text>
+      <Text style={styles.instructionText}>
+        Nome: {user.name} {'\n'}
+        Email: {user.email}
+      </Text>
+      <TouchableOpacity onPress={onLogout}>
+        <Text style={styles.logoutButton}>Log Out</Text>
+      </TouchableOpacity>
+    </View>
+  );
+}
+
+// Tela de Login
+function LoginScreen({ onLogin }) {
+  const [name, setName] = useState('');
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+
+  const handleLogin = () => {
+    if (name.trim() && email.trim() && password.trim()) {
+      onLogin({ name, email });
+    }
+  };
+
+  return (
+    <View style={styles.container}>
+      <Text style={styles.title}>Login</Text>
+      <TextInput
+        style={styles.input}
+        placeholder="Nome"
+        value={name}
+        onChangeText={setName}
+      />
+      <TextInput
+        style={styles.input}
+        placeholder="E-mail"
+        value={email}
+        onChangeText={setEmail}
+      />
+      <TextInput
+        style={styles.input}
+        placeholder="Senha"
+        value={password}
+        onChangeText={setPassword}
+        secureTextEntry
+      />
+      <TouchableOpacity style={styles.loginButton} onPress={handleLogin}>
+        <Text style={styles.loginButtonText}>Entrar</Text>
+      </TouchableOpacity>
+    </View>
+  );
+}
+
 // Configuração da navegação por abas
 const Tab = createBottomTabNavigator();
 
 export default function App() {
+  const [isLogged, setIsLogged] = useState(false);
+  const [user, setUser] = useState({ name: '', email: '' });
+
+  const handleLogin = (userInfo) => {
+    setUser(userInfo);
+    setIsLogged(true);
+  };
+
+  const handleLogout = () => {
+    setIsLogged(false);
+  };
+
   return (
-    <NavigationContainer>
-      <Tab.Navigator screenOptions={{ headerShown: false }}>
-        <Tab.Screen name="To-Do List" component={ToDoListScreen} />
-        <Tab.Screen name="Instruções" component={InstructionsScreen} />
-      </Tab.Navigator>
-    </NavigationContainer>
+    isLogged ? (
+      <NavigationContainer>
+        <Tab.Navigator screenOptions={{ headerShown: false }}>
+          <Tab.Screen name="To-Do List" component={ToDoListScreen} />
+          <Tab.Screen name="Instructions" component={InstructionsScreen} />
+          <Tab.Screen name="Profile">
+            {() => <ProfileScreen onLogout={handleLogout} user={user}  />}
+          </Tab.Screen>
+        </Tab.Navigator>
+      </NavigationContainer>
+    ) : (
+      <LoginScreen onLogin={handleLogin} />
+    )
   );
 }
 
@@ -90,7 +166,8 @@ const styles = StyleSheet.create({
   title: {
     fontSize: 24,
     fontWeight: 'bold',
-    marginBottom: 20,
+    marginBottom: 40,
+    marginTop: 20,
     textAlign: 'center',
   },
   inputContainer: {
@@ -98,13 +175,28 @@ const styles = StyleSheet.create({
     marginBottom: 20,
   },
   input: {
-    flex: 1,
-    height: 50,
+    width: '80%', 
+    height: 50, 
     borderColor: '#ced4da',
-    borderWidth: 1,
-    borderRadius: 8,
+    borderWidth: 1, 
+    borderRadius: 8, 
     paddingHorizontal: 10,
     backgroundColor: '#fff',
+    fontSize: 16,
+    marginBottom: 20,
+    marginLeft: 25,
+  },
+  inputList: {
+    width: '80%', 
+    height: 50, 
+    borderColor: '#ced4da',
+    borderWidth: 1, 
+    borderRadius: 8, 
+    paddingHorizontal: 10,
+    backgroundColor: '#fff',
+    fontSize: 16,
+    marginBottom: 20,
+    marginLeft: 1,
   },
   addButton: {
     width: 50,
@@ -114,6 +206,20 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     marginLeft: 10,
+  },
+  loginButton: {
+    width: '60%', 
+    height: 50, 
+    backgroundColor: '#6c757d', 
+    justifyContent: 'center', 
+    alignItems: 'center', 
+    borderRadius: 8,
+    marginLeft: 60,
+  },
+  loginButtonText: {
+    color: '#fff',
+    fontSize: 18, 
+    fontWeight: 'bold', 
   },
   addButtonText: {
     color: '#fff',
@@ -148,5 +254,11 @@ const styles = StyleSheet.create({
     fontSize: 16,
     lineHeight: 24,
     color: '#6c757d',
+  },
+  logoutButton: {
+    color: '#dc3545',
+    fontSize: 18,
+    textAlign: 'center',
+    marginTop: 20,
   },
 });
